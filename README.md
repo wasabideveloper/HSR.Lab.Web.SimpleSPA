@@ -24,5 +24,7 @@ This is of purpose of demo and the posibility to send it easy by mail.
 
 ```bash
 node server.js
+# or
+npm start
 ```
 Go to `http://localhost:3000`. You will be joined to a team. There are two teams and the server will join you to one of them.
