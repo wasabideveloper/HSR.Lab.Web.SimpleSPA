@@ -13,6 +13,11 @@ Features:
 * Simple routing
 
 
+## Why is it implemented in one file?
+
+This is of purpose of demo and the posibility to send it easy by mail.
+
+
 ## Start it
 
 ```bash
