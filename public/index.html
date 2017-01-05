@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>LocalCounterSPA</title>
+
+		<style>
+			body { font-family: Arial, sans-serif; }
+		</style>
+
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.6/handlebars.min.js"></script>
+
+		<script id="index-view" type="text/x-handlebars-template">
+			<p>Your team is <strong>{{counter.team}}</strong></p>
+			<p>Your current count is <strong>{{counter.count}}</strong></p>
+			<form>
+				<button data-click="up">Count Up</button>
+			</form>
+		</script>
+
+		<script>
+			// http library
+			var httpService = {
+				loadJSON: function(method, url, callback) {
+					let request = new XMLHttpRequest();
+					request.onload = function (event) {
+						callback(event.target.response);
+					};
+					request.open(method, url, true);
+					request.responseType = 'json';
+					request.send();
+				}
+			};
+		</script>
+		<script>
+		// service
+		class CounterService {
+			constructor(httpService) {
+				this.httpService = httpService;
+			}
+			load(callback) {
+				this.httpService.loadJSON('GET', '/api', (data) => {
+					callback(data);
+				});
+			}
+			up(callback) {
+				this.httpService.loadJSON('POST', '/api/up', (data) => {
+					callback(data);
+				});
+			}
+		}
+		</script>
+		<script>
+			// view
+			class IndexView {
+					constructor(appContainer) {
+					this.appContainer = appContainer;
+					this.renderer = Handlebars.compile(document.getElementById('index-view').innerHTML);
+				}
+				applyView(context) {
+					this.renderView(context);
+					this.bindEvents(this.appContainer, context);
+				}
+				renderView(context) {
+					let renderedView = this.renderer(context);
+					this.appContainer.innerHTML = this.renderer(context);
+				}
+				bindEvents(container, context) {
+					container.addEventListener('click', (event) => {
+						if(event.target.hasAttribute('data-click')) {
+							let handler = event.target.getAttribute('data-click');
+							if(context[handler] && context[handler] instanceof Function) {
+								context[handler].call(context, () => {
+									this.renderView(context);
+								});
+							}
+						}
+						event.preventDefault();
+					});
+				}
+			}
+		</script>
+		<script>
+			// controller
+			class CounterController {
+				constructor(counterService, appContainer) {
+					this.appContainer = document.getElementById('appContainer');
+					this.counterService = counterService;
+				}
+				indexAction(View) {
+					let view = new View(this.appContainer);
+					let counterService = this.counterService;
+					let viewModel = {
+						counter: {},
+						up: function(callback) {
+							counterService.up((data) => {
+								this.counter = data;
+								callback();
+							});
+						}
+					};
+					counterService.load((data) => {
+						viewModel.counter = data;
+						view.applyView(viewModel);
+					});
+				}
+			}
+		</script>
+		<script>
+			// routing
+			class Router {
+				constructor(routeConfig) {
+					this.routeConfig = routeConfig;
+				}
+				navigate(route) {
+					if(this.routeConfig[route]) {
+						this.routeConfig[route].call();
+					}
+				}
+			}
+		</script>
+
+		<script>
+			// bootstrap
+			document.addEventListener("DOMContentLoaded", () => {
+				let counterService = new CounterService(httpService);
+				let counterController = new CounterController(counterService);
+				let routeConfig = {
+					index : () => { counterController.indexAction(IndexView); }
+				}
+				let router = new Router(routeConfig);
+				router.navigate('index');
+			});
+		</script>
+	</head>
+	<body>
+		<h1>Local Counter SPA (no server connection)</h1>
+		<div id="appContainer"></div>
+	</body>
+</html>
