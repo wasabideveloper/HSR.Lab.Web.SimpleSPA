@@ -18,4 +18,4 @@ Features:
 ```bash
 node server.js
 ```
-Go to http://localhost:3000. You will be joined to a team. There are two teams and the server will join you to one of them.
+Go to `http://localhost:3000`. You will be joined to a team. There are two teams and the server will join you to one of them.
