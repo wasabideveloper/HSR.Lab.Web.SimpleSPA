@@ -4,7 +4,9 @@ A simple SPA based on Handlebars.
 
 This really simple proof of concept shows whats needed to implement a `Single Page App` without a framework like Angular or Aurelia.
 
-Features:
+![Screenshot](./documentation/screenshot.jpg)
+
+## Features
 
 * Templating (Handlebars)
 * Click event handlers
